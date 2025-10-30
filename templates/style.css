@@ -1,0 +1,124 @@
+/* style.css */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f4f7f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.container {
+    background-color: #ffffff;
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 800px;
+    text-align: center;
+}
+
+h1 {
+    font-family: 'Playfair Display', serif;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #7f8c8d;
+    margin-bottom: 30px;
+}
+
+.form-group {
+    margin-bottom: 30px;
+}
+
+textarea {
+    width: 100%;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dfe6e9;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 80px;
+}
+
+textarea:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 5px rgba(52, 152, 219, 0.5);
+}
+
+button {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #2980b9;
+    transform: translateY(-2px);
+}
+
+button:disabled {
+    background-color: #95a5a6;
+    cursor: not-allowed;
+    transform: translateY(0);
+}
+
+#story-container {
+    text-align: left;
+    background-color: #fafafa;
+    padding: 25px;
+    border-radius: 8px;
+    border: 1px solid #dfe6e9;
+}
+
+#story-container.hidden {
+    display: none;
+}
+
+#story-container h2 {
+    margin-top: 0;
+    color: #2c3e50;
+    font-family: 'Playfair Display', serif;
+}
+
+#story-output {
+    line-height: 1.8;
+    color: #34495e;
+}
+
+/* Loader Animation */
+.loader {
+    border: 4px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 4px solid #3498db;
+    width: 40px;
+    height: 40px;
+    animation: spin 2s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.error {
+    color: #e74c3c;
+    font-weight: bold;
+}

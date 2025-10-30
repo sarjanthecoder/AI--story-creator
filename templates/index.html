@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="icon" href="/story.png" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Story Creator - Unleash Your Imagination</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --primary-color: #6D28D9;
+            --primary-dark: #5B21B6;
+            --primary-light: #8B5CF6;
+            --secondary-color: #EDE9FE;
+            --accent-color: #EC4899;
+            --background-color: #0F0A1E;
+            --surface-color: #1A1332;
+            --text-color: #F9FAFB;
+            --text-secondary: #D1D5DB;
+            --light-gray: #374151;
+            --medium-gray: #4B5563;
+            --gradient-1: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --gradient-2: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --gradient-3: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+        
+        /* Animated background */
+        .bg-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+        
+        .bg-animation::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(109, 40, 217, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.15) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(139, 92, 246, 0.1) 0%, transparent 50%);
+            animation: bgFloat 20s ease-in-out infinite;
+        }
+        
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -50px) rotate(5deg); }
+            66% { transform: translate(-20px, 20px) rotate(-5deg); }
+        }
+        
+        /* Header Styles */
+        .header {
+            padding: 1.5rem 5%;
+            background: rgba(26, 19, 50, 0.8);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(109, 40, 217, 0.3);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .logo {
+            font-weight: 800;
+            font-size: 1.75rem;
+            background: linear-gradient(135deg, #667eea 0%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .logo::before {
+            content: '✨';
+            font-size: 1.5rem;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-1);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover {
+            color: var(--text-color);
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Landing Section */
+        .landing {
+            min-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 5%;
+            position: relative;
+        }
+        
+        .landing h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #ffffff 0%, #a78bfa 50%, #f093fb 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            line-height: 1.2;
+            animation: fadeInUp 0.8s ease-out;
+        }
+        
+        .landing p {
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            max-width: 700px;
+            margin-bottom: 3rem;
+            animation: fadeInUp 0.8s ease-out 0.2s backwards;
+        }
+        
+        .cta-button {
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            background: var(--gradient-1);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(109, 40, 217, 0.4);
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 5%;
+        }
+        
+        .feature-card {
+            background: rgba(26, 19, 50, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(109, 40, 217, 0.3);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(109, 40, 217, 0.3);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-light);
+        }
+        
+        .feature-card p {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+        
+        /* Main Container */
+        .main-container {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            gap: 2rem;
+            padding: 2rem 5%;
+            max-width: 1600px;
+            margin: 0 auto;
+            min-height: calc(100vh - 150px);
+        }
+        
+        .controls-panel, .output-panel {
+            background: rgba(26, 19, 50, 0.8);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 2rem;
+            border: 1px solid rgba(109, 40, 217, 0.3);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .controls-panel h2, .output-panel h2 {
+            margin-top: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(109, 40, 217, 0.3);
+        }
+        
+        .controls-panel p {
+            margin-top: -1rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--text-color);
+            font-size: 0.95rem;
+        }
+        
+        .form-group textarea, .form-group select, .form-group input[type="text"] {
+            width: 100%;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid rgba(109, 40, 217, 0.3);
+            background: rgba(15, 10, 30, 0.6);
+            color: var(--text-color);
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-group textarea:focus, .form-group select:focus, .form-group input[type="text"]:focus {
+            outline: none;
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+        
+        .form-group textarea {
+            min-height: 140px;
+            resize: vertical;
+        }
+        
+        .form-group textarea::placeholder, .form-group input::placeholder {
+            color: var(--medium-gray);
+        }
+        
+        .slider-group .label-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .slider-group input[type="range"] {
+            width: 100%;
+            margin-top: 0.5rem;
+            -webkit-appearance: none;
+            appearance: none;
+            height: 8px;
+            border-radius: 5px;
+            background: rgba(109, 40, 217, 0.2);
+            outline: none;
+        }
+        
+        .slider-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            cursor: pointer;
+            box-shadow: 0 2px 10px rgba(109, 40, 217, 0.5);
+        }
+        
+        .slider-group input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--gradient-1);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 10px rgba(109, 40, 217, 0.5);
+        }
+        
+        #creativity-value {
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 700;
+        }
+        
+        .button-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            padding: 1rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary {
+            background: var(--gradient-1);
+            color: #fff;
+            box-shadow: 0 4px 15px rgba(109, 40, 217, 0.4);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(109, 40, 217, 0.6);
+        }
+        
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-secondary {
+            background: rgba(109, 40, 217, 0.2);
+            color: var(--text-color);
+            border: 1px solid rgba(109, 40, 217, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(109, 40, 217, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .output-panel {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .output-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            line-height: 1.8;
+            white-space: pre-wrap;
+            padding: 1.5rem;
+            background: rgba(15, 10, 30, 0.4);
+            border-radius: 12px;
+            border: 1px solid rgba(109, 40, 217, 0.2);
+            color: var(--text-secondary);
+            min-height: 400px;
+            max-height: 70vh;
+        }
+        
+        .output-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .output-content::-webkit-scrollbar-track {
+            background: rgba(109, 40, 217, 0.1);
+            border-radius: 10px;
+        }
+        
+        .output-content::-webkit-scrollbar-thumb {
+            background: var(--gradient-1);
+            border-radius: 10px;
+        }
+        
+        #pdf-btn {
+            font-size: 0.9rem;
+            padding: 0.6rem 1.2rem;
+        }
+        
+        /* Footer */
+        .footer {
+            padding: 3rem 5%;
+            background: rgba(26, 19, 50, 0.8);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(109, 40, 217, 0.3);
+            margin-top: 4rem;
+        }
+        
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 3rem;
+        }
+        
+        .footer-section h3 {
+            margin-bottom: 1rem;
+            background: var(--gradient-1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .footer-section ul {
+            list-style: none;
+        }
+        
+        .footer-section ul li {
+            margin-bottom: 0.5rem;
+        }
+        
+        .footer-section a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .footer-section a:hover {
+            color: var(--primary-light);
+        }
+        
+        .footer-bottom {
+            text-align: center;
+            margin-top: 3rem;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(109, 40, 217, 0.3);
+            color: var(--text-secondary);
+        }
+        
+        .social-links {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-links a {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(109, 40, 217, 0.2);
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            background: var(--gradient-1);
+            transform: translateY(-3px);
+        }
+        
+        /* ==================== MEDIA QUERIES ==================== */
+        
+        /* Large Desktop (1400px and up) */
+        @media (min-width: 1400px) {
+            .main-container {
+                max-width: 1800px;
+                grid-template-columns: 500px 1fr;
+            }
+            
+            .landing h1 {
+                font-size: 5rem;
+            }
+            
+            .landing p {
+                font-size: 1.7rem;
+            }
+        }
+        
+        /* Desktop (1200px - 1399px) */
+        @media (max-width: 1399px) {
+            .main-container {
+                grid-template-columns: 420px 1fr;
+            }
+        }
+        
+        /* Large Tablet & Small Desktop (1024px - 1199px) */
+        @media (max-width: 1199px) {
+            .landing h1 {
+                font-size: 3.5rem;
+            }
+            
+            .landing p {
+                font-size: 1.3rem;
+            }
+            
+            .main-container {
+                grid-template-columns: 380px 1fr;
+                gap: 1.5rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        /* Tablet (768px - 1023px) */
+        @media (max-width: 1023px) {
+            .header {
+                padding: 1.2rem 3%;
+            }
+            
+            .logo {
+                font-size: 1.5rem;
+            }
+            
+            .logo::before {
+                font-size: 1.3rem;
+            }
+            
+            .nav-links {
+                gap: 1.5rem;
+            }
+            
+            .landing {
+                min-height: 80vh;
+                padding: 3rem 3%;
+            }
+            
+            .landing h1 {
+                font-size: 3rem;
+            }
+            
+            .landing p {
+                font-size: 1.2rem;
+                margin-bottom: 2.5rem;
+            }
+            
+            .cta-button {
+                padding: 0.9rem 2.5rem;
+                font-size: 1.1rem;
+            }
+            
+            .features {
+                gap: 1.5rem;
+                margin: 3rem auto;
+            }
+            
+            .feature-card {
+                padding: 1.5rem;
+            }
+            
+            .feature-icon {
+                font-size: 2.5rem;
+            }
+            
+            .feature-card h3 {
+                font-size: 1.3rem;
+            }
+            
+            .main-container {
+                grid-template-columns: 1fr;
+                padding: 1.5rem 3%;
+                gap: 1.5rem;
+            }
+            
+            .controls-panel, .output-panel {
+                padding: 1.5rem;
+            }
+            
+            .output-content {
+                max-height: 50vh;
+                min-height: 300px;
+            }
+            
+            .footer {
+                padding: 2.5rem 3%;
+                margin-top: 3rem;
+            }
+            
+            .footer-content {
+                gap: 2rem;
+            }
+        }
+        
+        /* Mobile Landscape & Small Tablet (640px - 767px) */
+        @media (max-width: 767px) {
+            .nav-links {
+                display: none;
+            }
+            
+            .header {
+                padding: 1rem 4%;
+            }
+            
+            .logo {
+                font-size: 1.3rem;
+            }
+            
+            .landing {
+                min-height: 70vh;
+                padding: 2.5rem 4%;
+            }
+            
+            .landing h1 {
+                font-size: 2.5rem;
+                margin-bottom: 1rem;
+            }
+            
+            .landing p {
+                font-size: 1.1rem;
+                margin-bottom: 2rem;
+            }
+            
+            .cta-button {
+                padding: 0.85rem 2rem;
+                font-size: 1rem;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+                margin: 2.5rem auto;
+                padding: 0 4%;
+            }
+            
+            .feature-card {
+                padding: 1.5rem;
+            }
+            
+            .main-container {
+                padding: 1.5rem 4%;
+            }
+            
+            .controls-panel h2, .output-panel h2 {
+                font-size: 1.3rem;
+            }
+            
+            .form-group textarea {
+                min-height: 120px;
+            }
+            
+            .output-content {
+                max-height: 60vh;
+                min-height: 250px;
+                padding: 1rem;
+            }
+            
+            .footer {
+                padding: 2rem 4%;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+            
+            .footer-bottom {
+                margin-top: 2rem;
+                padding-top: 1.5rem;
+            }
+        }
+        
+        /* Mobile Portrait (480px - 639px) */
+        @media (max-width: 639px) {
+            .landing h1 {
+                font-size: 2.2rem;
+            }
+            
+            .landing p {
+                font-size: 1rem;
+            }
+            
+            .cta-button {
+                padding: 0.8rem 1.8rem;
+                font-size: 0.95rem;
+            }
+            
+            .feature-card h3 {
+                font-size: 1.2rem;
+            }
+            
+            .feature-card p {
+                font-size: 0.95rem;
+            }
+            
+            .controls-panel, .output-panel {
+                padding: 1.2rem;
+                border-radius: 16px;
+            }
+            
+            .button-group {
+                gap: 0.8rem;
+            }
+            
+            .btn {
+                padding: 0.9rem;
+                font-size: 0.95rem;
+            }
+        }
+        
+        /* Small Mobile (320px - 479px) */
+        @media (max-width: 479px) {
+            .header {
+                padding: 0.9rem 3%;
+            }
+            
+            .logo {
+                font-size: 1.1rem;
+            }
+            
+            .logo::before {
+                font-size: 1.1rem;
+            }
+            
+            .landing {
+                min-height: 60vh;
+                padding: 2rem 3%;
+            }
+            
+            .landing h1 {
+                font-size: 1.8rem;
+            }
+            
+            .landing p {
+                font-size: 0.95rem;
+                margin-bottom: 1.8rem;
+            }
+            
+            .cta-button {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.9rem;
+            }
+            
+            .features {
+                margin: 2rem auto;
+            }
+            
+            .feature-card {
+                padding: 1.2rem;
+            }
+            
+            .feature-icon {
+                font-size: 2rem;
+            }
+            
+            .feature-card h3 {
+                font-size: 1.1rem;
+            }
+            
+            .feature-card p {
+                font-size: 0.9rem;
+            }
+            
+            .main-container {
+                padding: 1rem 3%;
+                gap: 1rem;
+            }
+            
+            .controls-panel, .output-panel {
+                padding: 1rem;
+                border-radius: 14px;
+            }
+            
+            .controls-panel h2, .output-panel h2 {
+                font-size: 1.2rem;
+                padding-bottom: 0.8rem;
+                margin-bottom: 1.2rem;
+            }
+            
+            .controls-panel p {
+                font-size: 0.85rem;
+            }
+            
+            .form-group {
+                margin-bottom: 1.2rem;
+            }
+            
+            .form-group label {
+                font-size: 0.9rem;
+            }
+            
+            .form-group textarea, .form-group select, .form-group input[type="text"] {
+                padding: 0.8rem;
+                font-size: 0.95rem;
+            }
+            
+            .form-group textarea {
+                min-height: 100px;
+            }
+            
+            .button-group {
+                gap: 0.7rem;
+                margin-top: 1.5rem;
+            }
+            
+            .btn {
+                padding: 0.8rem;
+                font-size: 0.9rem;
+            }
+            
+            #pdf-btn {
+                font-size: 0.85rem;
+                padding: 0.5rem 1rem;
+            }
+            
+            .output-content {
+                max-height: 50vh;
+                min-height: 200px;
+                padding: 0.8rem;
+                font-size: 0.95rem;
+                line-height: 1.6;
+            }
+            
+            .footer {
+                padding: 1.5rem 3%;
+                margin-top: 2rem;
+            }
+            
+            .footer-section h3 {
+                font-size: 1.1rem;
+                margin-bottom: 0.8rem;
+            }
+            
+            .footer-section p, .footer-section li {
+                font-size: 0.9rem;
+            }
+            
+            .social-links a {
+                width: 35px;
+                height: 35px;
+                font-size: 0.9rem;
+            }
+            
+            .footer-bottom {
+                margin-top: 1.5rem;
+                padding-top: 1.2rem;
+                font-size: 0.85rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bg-animation"></div>
+
+    <header class="header">
+        <a href="#" class="logo">AI Story Creator</a>
+        <nav class="nav-links">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#create">Create</a>
+        </nav>
+    </header>
+
+    <section id="home" class="landing">
+        <h1>Unleash Your Imagination</h1>
+        <p>Transform your ideas into captivating stories with the power of AI. Create unique narratives in seconds.</p>
+        <a href="#create" class="cta-button">Start Creating</a>
+        
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon">🚀</div>
+                <h3>Lightning Fast</h3>
+                <p>Generate compelling stories in seconds with advanced AI technology</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎨</div>
+                <h3>Unlimited Creativity</h3>
+                <p>Explore endless genres and styles to match your vision</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">✨</div>
+                <h3>Professional Quality</h3>
+                <p>Get well-structured, engaging narratives every time</p>
+            </div>
+        </div>
+    </section>
+
+    <main id="create" class="main-container">
+        <div class="controls-panel">
+            <h2>Story Prompt</h2>
+            <p>Your imagination, realized.</p>
+
+            <div class="form-group">
+                <textarea id="prompt-input" placeholder="A detective who solves crimes by talking to cats..."></textarea>
+            </div>
+
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                <div class="form-group">
+                    <label for="genre-select">Genre</label>
+                    <select id="genre-select">
+                        <option value="Creative">Creative</option>
+                        <option value="Fantasy">Fantasy</option>
+                        <option value="Sci-Fi">Sci-Fi</option>
+                        <option value="Mystery">Mystery</option>
+                        <option value="Horror">Horror</option>
+                        <option value="Comedy">Comedy</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="length-select">Length</label>
+                    <select id="length-select">
+                        <option value="Short">Short</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Long">Long</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="tone-input">Tone</label>
+                <input type="text" id="tone-input" placeholder="e.g., Hopeful, Ominous, Humorous">
+            </div>
+
+            <div class="form-group slider-group">
+                <div class="label-container">
+                    <label for="creativity-slider">Creativity</label>
+                    <span id="creativity-value">0.70</span>
+                </div>
+                <input type="range" id="creativity-slider" min="0" max="1" step="0.05" value="0.7">
+            </div>
+
+            <div class="button-group">
+                <button id="clear-btn" class="btn btn-secondary">Clear</button>
+                <button id="generate-btn" class="btn btn-primary">Generate</button>
+            </div>
+        </div>
+
+        <div class="output-panel">
+            <div class="output-header">
+                <h2>Generated Story</h2>
+                <button id="pdf-btn" class="btn btn-secondary">↓ PDF</button>
+            </div>
+            <div id="output-content" class="output-content">
+                Your generated story will appear here.
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3>AI Story Creator</h3>
+                <p>Empowering creativity through artificial intelligence. Create stories that inspire and captivate.</p>
+                <div class="social-links">
+                    <a href="#">📘</a>
+                    <a href="#">🐦</a>
+                    <a href="#">📷</a>
+                    <a href="#">💼</a>
+                </div>
+            </div>
+            <div class="footer-section">
+                <h3>Product</h3>
+                <ul>
+                    <li><a href="#">Features</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">API</a></li>
+                    <li><a href="#">Documentation</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Contact</a></li>
+                </ul>
+            </div>
+            <div class="footer-section">
+                <h3>Legal</h3>
+                <ul>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">GDPR</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 AI Story Creator. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const generateBtn = document.getElementById('generate-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const pdfBtn = document.getElementById('pdf-btn');
+        const creativitySlider = document.getElementById('creativity-slider');
+        const creativityValueSpan = document.getElementById('creativity-value');
+        const outputContent = document.getElementById('output-content');
+        
+        // Update slider value display
+        creativitySlider.addEventListener('input', () => {
+            creativityValueSpan.textContent = parseFloat(creativitySlider.value).toFixed(2);
+        });
+
+        // Clear button functionality
+        clearBtn.addEventListener('click', () => {
+            document.getElementById('prompt-input').value = '';
+            document.getElementById('genre-select').value = 'Creative';
+            document.getElementById('length-select').value = 'Short';
+            document.getElementById('tone-input').value = '';
+            creativitySlider.value = 0.7;
+            creativityValueSpan.textContent = '0.70';
+            outputContent.innerHTML = 'Your generated story will appear here.';
+        });
+
+        // PDF button functionality
+        pdfBtn.addEventListener('click', () => {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            const storyText = outputContent.innerText;
+            const placeholderText = 'Your generated story will appear here.';
+            
+            if (storyText.trim() === placeholderText || !storyText.trim()) {
+                alert('Please generate a story first before exporting to PDF.');
+                return;
+            }
+
+            doc.setProperties({ title: 'AI Generated Story' });
+            
+            const margin = 15;
+            const lineHeight = 7;
+            const pageHeight = doc.internal.pageSize.getHeight();
+            const usableWidth = doc.internal.pageSize.getWidth() - (2 * margin);
+            
+            doc.setFont('Helvetica', 'normal');
+            doc.setFontSize(12);
+
+            const lines = doc.splitTextToSize(storyText, usableWidth);
+            
+            let cursorY = margin;
+            lines.forEach(line => {
+                if (cursorY + lineHeight > pageHeight - margin) {
+                    doc.addPage();
+                    cursorY = margin;
+                }
+                doc.text(line, margin, cursorY);
+                cursorY += lineHeight;
+            });
+
+            doc.save('ai-generated-story.pdf');
+        });
+        
+        // Generate button functionality
+        generateBtn.addEventListener('click', async () => {
+            const prompt = document.getElementById('prompt-input').value;
+            const genre = document.getElementById('genre-select').value;
+            const length = document.getElementById('length-select').value;
+            const tone = document.getElementById('tone-input').value;
+            const creativity = parseFloat(creativitySlider.value);
+
+            if (!prompt) {
+                alert('Please enter a story prompt.');
+                return;
+            }
+
+            outputContent.innerHTML = 'Generating... Please wait. ✨';
+            generateBtn.disabled = true;
+
+            try {
+                const response = await fetch('/generate_story', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, genre, length, tone, creativity })
+                });
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'An unknown error occurred on the server.');
+                }
+                
+                const data = await response.json();
+                outputContent.innerText = data.story;
+
+            } catch (error) {
+                outputContent.innerHTML = `--- An error occurred: ${error.message} ---`;
+            } finally {
+                generateBtn.disabled = false;
+            }
+        });
+
+        // Smooth scrolling for navigation
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
